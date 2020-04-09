@@ -1,0 +1,26 @@
+<doctype html>
+    <title>Users Results - Database</title>
+    <h3>User Table</h3>
+    <table border="1">
+        <tr>
+            <td>id</td><td>first name</td><td>last name</td><td>email</td>
+        </tr>
+        {% for item in Users %}
+        <tr>
+            <td>{{item.id}}</td><td>{{item.firstname}}</td><td>{{item.lastname}}</td><td>{{item.email}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <hr>
+    <h3>Reviews Table</h3>
+    <table border="1">
+        <tr>
+            <td>id</td><td>item id</td><td>rating</td><td>headline</td><td>comments</td><td>timestamp</td><td>option</td>
+        </tr>
+    {% for item in Posts %}
+    <tr>
+        <td>{{item.id}}</td><td>{{item.item_id}}</td><td>{{item.rating}}</td><td>{{item.headline}}</td><td>{{item.content}}</td><td>{{item.timestamp}}</td><td><a href="/delnote/{{item.id}}">Delete</a></td>
+    </tr>
+    {% endfor %}
+    </table>

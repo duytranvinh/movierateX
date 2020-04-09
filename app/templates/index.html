@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <style>
+    @media only screen and (min-width: 601px) {
+        .card {
+          height: 310px;
+          overflow: hidden;
+        }
+    }
+    @media only screen and (min-width: 993px) {
+        .card {
+          min-height: 400px;
+          overflow: hidden;
+        }
+    }
+  </style>
+
+  
+  <!-- HOME/LANDING PAGE -->
+  <section id="landingPage" class="container">
+    <div class="row" id="showItems">
+    </div>
+    <div class="row">
+        <div class="col s12 m12 center">
+            <a id="nextDataBtn" class="waves-effect waves-light btn cyan center">Load More</a>
+        </div>
+    </div>
+  </section>
+{% endblock %}
