@@ -290,15 +290,17 @@
             var items = [];
             $.each(data['results'], function( key, val ) {
                 var url = (val.poster_path == null) ? '{{url_for('static', filename='images/no-movie.png')}}' : "https://image.tmdb.org/t/p/w500"+val.poster_path;
-                var title = (val.title == null) ? val.name : val.title ;
+                var title = (val.title == null) ? val.name : val.title ; 
                 var upcoming = (type == "Upcoming") ? "<br><i>"+val.release_date+"</i>" : '' ;
+                var titleHeader = (val.poster_path != null) ? title+upcoming : '';
                 var color = (val.vote_average > 7.5) ? 'red' : 
                             (val.vote_average > 5 && val.vote_average < 7.5) ? 'orange' : 'yellow';
                 
                 items.push('<a href="item/'+val.id+'"><div class="col s12 m3"><div class="card white">' +
                             '<div class="card-image"><img src="'+url+'" class="animated fadeIn">' +
+                            '<span class="card-title">'+titleHeader+'</span>' +
                             '<a class="btn-floating halfway-fab waves-effect waves-light '+color+' black-text center"><b>'+val.vote_average+'</b></a>' +
-                            '</div><div class="card-content"><p>'+title+upcoming+'</div></div></div></a>');
+                            '</div></div></div></a>');
             });
             
             if (reload) $( "#showItems" ).html('');
