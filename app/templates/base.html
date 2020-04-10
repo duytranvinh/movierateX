@@ -291,7 +291,7 @@
             $.each(data['results'], function( key, val ) {
                 var url = (val.poster_path == null) ? '{{url_for('static', filename='images/no-movie.png')}}' : "https://image.tmdb.org/t/p/w500"+val.poster_path;
                 var upcoming = (type == "Upcoming") ? '<br><i>'+val.release_date+'</i>' : '' ;
-                var title = (val.title == null) ? val.name : val.title;
+                var title = (val.poster_path == null) ? ((val.title == null) ? val.name : val.title) : '';
                 var color = (val.vote_average > 7.5) ? 'red' : 
                             (val.vote_average > 5 && val.vote_average < 7.5) ? 'orange' : 'yellow';
                 
