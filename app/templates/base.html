@@ -295,11 +295,11 @@
                 var color = (val.vote_average > 7.5) ? 'red' : 
                             (val.vote_average > 5 && val.vote_average < 7.5) ? 'orange' : 'yellow';
                 
-                items.push('<a href="item/'+val.id+'"><div class="col s12 m3"><div class="card white">' +
+                items.push('<a href="item/'+val.id+'"><div class="col s12 m3"><div class="card medium white">' +
                             '<div class="card-image"><img src="'+url+'" class="animated fadeIn">' +
                             '<span class="card-title">'+title+'</span>' +
                             '<a class="btn-floating halfway-fab waves-effect waves-light '+color+' black-text center"><b>'+val.vote_average+'</b></a>' +
-                            '</div><div class="card-content">'+upcoming+'</div></div></div></a>');
+                            '</div><div class="card-action">'+upcoming+'</div></div></div></a>');
             });
             
             if (reload) $( "#showItems" ).html('');
