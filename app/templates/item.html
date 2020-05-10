@@ -5,38 +5,21 @@
 <style>
     #backdrop {
       width: 100%;
-      height: 380px;
       background-image: url('https://image.tmdb.org/t/p/original{{ data2.backdrop_path }}');
       background-position: center center;
       background-repeat: no-repeat;
       background-size: cover;
-      position: absolute;
+      position: relative;
       z-index: -2;
+      opacity: 0.6;
+      margin: 0px;
     }
     #backdrop-cover {
       position: absolute;
       z-index: -1;
       width: 100%;
-      height: 380px;
     }
     .description {
-        margin-top: 380px;
-    }
-    @media only screen and (max-width: 601px) {
-        .description {
-            color: black;
-        }
-        #backdrop-cover {
-            opacity: 0.1;
-        }
-    }
-    @media only screen and (min-width: 993px) {
-        .description {
-            color: white;
-        }
-        #backdrop-cover {
-            opacity: 0.6;
-        }
     }
 </style>
 
@@ -59,7 +42,7 @@
             </div>
           </div>
         </div>
-        <div class="col s12 m10 description black-text">
+        <div class="col s12 m10 description">
             <p><h3>{{ data.Title }} ({{ data.Year }})</h3></p>
             <p>{{ data.Rated }} <b>|</b> {{ data.Runtime }} <b>|</b> {{ data.Genre }} <b>|</b> {{ data.Released }}</p>
             <!--<p><i>{{ data.Production }}</i></p>
