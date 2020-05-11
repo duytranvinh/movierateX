@@ -1,7 +1,7 @@
-#!/bin/env python
-from app import create_app, socketio
+from myapp import app
+from myapp import db
 
-app = create_app(debug=True)
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0')
+    db.create_all()
+    app.run(debug=True)
