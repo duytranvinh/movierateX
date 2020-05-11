@@ -25,6 +25,14 @@
     body {
         font-family: Noto Sans TC;
     }
+    .overflow {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .fs14 {
+        font-size: 14pt;
+    }
   </style>
 </head>
 
@@ -42,14 +50,16 @@
           <li class="getData"><a class=" waves-effect">Popular</a></li>
           <li class="getData"><a class=" waves-effect">Upcoming</a></li>
           <li class="getData"><a class=" waves-effect">In Theater</a></li>
+          <li><a class="amber lighten-2 black-text btn-small waves-effect waves-light modal-trigger" href="#feedback-modal">Feedback</a></li>
+          {% if admin %}<li><a class="blue lighten-2 black-text btn-small waves-effect waves-light modal-open">View Feedback</a></li>{% endif %}
         </ul>
         
         <!-- Right Side -->
         <ul class="right">
           {% if user.is_authenticated  %}
-          <li><a href="{{ url_for('logout') }}" class="waves-effect waves-light"><i class="fas fa-user-alt-slash"></i></a></li>
+          <li><a href="{{ url_for('logout') }}" class="waves-effect waves-light"><i class="fas fa-user-alt-slash fa-lg"></i> Logout</a></li>
           {% else %}
-          <li><a class="waves-effect waves-light modal-trigger" href="#modal1"><i class="fas fa-user"></i></a></li>
+          <li><a class="waves-effect waves-light modal-trigger" href="#modal1"><i class="fas fa-user fa-lg"></i> Login</a></li>
           {% endif %}
         </ul>
         
@@ -100,6 +110,8 @@
         <li class="getData"><a class="waves-effect sidenav-close white-text">Popular</a></li>
         <li class="getData"><a class="waves-effect sidenav-close white-text">Upcoming</a></li>
         <li class="getData"><a class="waves-effect sidenav-close white-text">In Theater</a></li>
+        <li><a class="amber lighten-4 waves-effect sidenav-close black-text modal-trigger" href="#feedback-modal">Feedback</a></li>
+        {% if admin %}<li><a class="waves-effect sidenav-close white-text modal-open">View Feedback</a></li>{% endif %}
         {% if user.is_authenticated  %}
         <li><a href="{{ url_for('logout') }}" class="waves-effect waves-light white-text">Logout</a></li>
         {% else %}
@@ -170,11 +182,48 @@
     </form>
   </div>
 
+  <!-- Modal Structure -->
+  <div id="feedback-modal" class="modal modal-fixed-footer">
+    <form id="submitFeedback" action="/feedback" method="POST" onsubmit="return false">
+    <div class="modal-content">
+      <h4 class="center">Write a feedback</h4>
+      <div class="row">
+        <div class="input-field col s12">
+          <input id="fb_email" name="fb_email" type="email" class="validate">
+          <label for="fb_email">Email</label>
+          <span id="helper-text" class="helper-text red-text" data-error="Invalid email address" data-success=""></span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          <textarea id="fb_comment" class="materialize-textarea" name="fb_comment" placeholder="Send us a feedback to improve our website!"></textarea>
+          <label for="fb_comment">Got recommendation?</label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <input type="submit" value="Submit" class="waves-effect waves-white btn-flat cyan lighten-3 black-text">
+      <a href="#!" class="modal-close waves-effect waves-red btn-flat red white-text">Close</a>
+    </div>
+    </form>
+  </div>
+
+  <!-- Modal Structure -->
+  <div id="viewfeedback-modal" class="modal modal-fixed-footer">
+    <div class="modal-content left">
+    <h4 class="center">Users Feedback</h4>
+      <ul id="vfb_content" class="collapsible"></ul>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-red btn-flat red white-text">Close</a>
+    </div>
+  </div>
+  
   <!--start of Script insertions -->
-  <!--compiled and minified JavaScript -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <!--inserting jQuery from the Google CDN -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <!--compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   
     {% block content %}{% endblock %}
     
@@ -188,15 +237,18 @@
   <!-- custom scripts -->
   <script>
     /* Materialize components initialization */
+    var Max_Characters = 20;
+    var modals;
+    
     document.addEventListener('DOMContentLoaded', function() {
         var elems = document.querySelectorAll('.modal');
-        var instances = M.Modal.init(elems);
+        modals = M.Modal.init(elems);
         
         {% with messages = get_flashed_messages() %}
         {% if messages %}
           {% for message in messages %}
             {% if message != "Please log in to access this page." %}
-              instances[0].open();
+              modals[0].open();
             {% endif %}
           {% endfor %}
         {% endif%}
@@ -206,6 +258,11 @@
     document.addEventListener('DOMContentLoaded', function() {
         var elems = document.querySelectorAll('.sidenav');
         var instances = M.Sidenav.init(elems);
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.collapsible');
+        var instances = M.Collapsible.init(elems);
     });
     
     /* Script initialization */
@@ -290,16 +347,17 @@
             var items = [];
             $.each(data['results'], function( key, val ) {
                 var url = (val.poster_path == null) ? '{{url_for('static', filename='images/no-movie.png')}}' : "https://image.tmdb.org/t/p/w500"+val.poster_path;
-                var upcoming = (type == "Upcoming") ? '<br><i>'+val.release_date+'</i>' : '' ;
-                var title = (val.poster_path == null) ? ((val.title == null) ? val.name : val.title) : '';
+                var title = (val.title == null) ? val.name : val.title;
+                var upcoming = (type == "Upcoming") ? '<b>Release: </b>'+val.release_date : '' ;
+                var overview = (val.overview) ? '<div class="overflow">'+val.overview+'</div>' : '<br>...' ;
                 var color = (val.vote_average > 7.5) ? 'red' : 
                             (val.vote_average > 5 && val.vote_average < 7.5) ? 'orange' : 'yellow';
                 
-                items.push('<a href="item/'+val.id+'"><div class="col s12 m3"><div class="card white">' +
+                items.push('<a href="item/'+val.id+'"><div class="col s12 m4 l3"><div class="card white">' +
                             '<div class="card-image"><img src="'+url+'" class="animated fadeIn">' +
                             //'<span class="card-title">'+title+'</span>' +
                             '<a class="btn-floating halfway-fab waves-effect waves-light '+color+' black-text center"><b>'+val.vote_average+'</b></a>' +
-                            '</div><div class="card-action">'+title+upcoming+'</div></div></div></a>');
+                            '</div><div class="card-action"><div class="fs14 overflow"><b>'+title+'</b></div>'+upcoming+overview+'</div></div></div></a>');
             });
             
             if (reload) $( "#showItems" ).html('');
@@ -318,6 +376,44 @@
             });
         }
         // end of getData
+        
+        $('.modal-open').click(function() {
+            modals[2].open();
+            $.getJSON("/feedback", function (data) {
+            $('#vfb_content').html('');
+            var t = ''
+                $.each(data, function( key, value ) {
+                    t = '<li><div class="collapsible-header"><i class="material-icons">filter_drama</i>'+value.email+'</div><div class="collapsible-body"><span>L'+value.comment+'</span></div></li>';
+                    $('#vfb_content').append(t)
+                });
+            });
+        });
+        
+        $('#feedback-modal').submit(function() {
+            var form = $('#submitFeedback')[0];
+            var formData = new FormData(form);
+            
+            $.ajax({
+                url : "/send_fb",
+                type: "POST",
+                data : formData,
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    M.toast({html: data, classes: 'rounded'});
+                    modals[1].close();
+                },
+                error: function (e) {
+                    console.log("ERROR : ", e);
+                }
+            });
+        });
+        
+        function limitChars(name, mc = Max_Characters) {
+            var string = (name.length > mc) ? name.substring(0, mc)+'...' : name;
+            return string;
+        }
         
         function getUrlVars() {
             var vars = {};
