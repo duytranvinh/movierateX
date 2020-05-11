@@ -3,14 +3,19 @@
 {% block content %}
 <style>
     /*@media only screen and (min-width: 601px) {
-        .card {
-          height: 320px;
+        .card-image img {
+          max-height: 320px;
           overflow: hidden;
         }
     }*/
-    @media only screen and (min-width: 993px) {
-        img {
-          max-height: 300px;
+    @media only screen and (min-width: 600px) and (max-width: 1500px) {
+        .card-image img {
+          max-height: 270px;
+        }
+    }
+    @media only screen and (min-width: 1500px) {
+        .card-image img {
+          height: 350px;
         }
     }
   </style>
