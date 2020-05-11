@@ -20,7 +20,20 @@
         </tr>
     {% for item in Posts %}
     <tr>
-        <td>{{item.id}}</td><td>{{item.item_id}}</td><td>{{item.rating}}</td><td>{{item.headline}}</td><td>{{item.content}}</td><td>{{item.timestamp}}</td><td><a href="/delnote/{{item.id}}">Delete</a></td>
+        <td>{{item.id}}</td><td>{{item.item_id}}</td><td>{{item.rating}}</td><td>{{item.headline}}</td><td>{{item.content}}</td><td>{{item.timestamp}}</td><td><a href="/delr/{{item.id}}">Delete</a></td>
+    </tr>
+    {% endfor %}
+    </table>
+
+    <hr>
+    <h3>Feedback Table</h3>
+    <table border="1">
+        <tr>
+            <td>id</td><td>email</td><td>Comment</td>
+        </tr>
+    {% for item in Feedbacks %}
+    <tr>
+        <td>{{item.id}}</td><td>{{item.email}}</td><td>{{item.comment}}</td><td><a href="/delfb/{{item.id}}">Delete</a></td>
     </tr>
     {% endfor %}
     </table>
