@@ -46,6 +46,20 @@ class Post(db.Model):
     def __repr__(self):
         return '<Posts {}>'.format(self.body)
 
+class Feedback(db.Model):
+    """
+    This class is responsible for storing user's feedback information.
+    All of the attributes for this class are listed below. 
+    """
+    __tablename__ = "Feedback"
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(128), index=True, unique=True)
+    comment = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Feedback {}>'.format(self.body)
+        
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
