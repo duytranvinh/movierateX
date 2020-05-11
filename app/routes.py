@@ -50,7 +50,7 @@ def item(id):
 
     :return: Display item detail
     '''
-    admin = 1 if current_user.email == 'admin' else None
+    admin = 1 if current_user.is_authenticated and current_user.email == 'admin' else None
     
     # get JSON data from themoviedb
     try:
