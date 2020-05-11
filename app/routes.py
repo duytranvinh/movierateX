@@ -2,7 +2,7 @@ from flask import current_app as app
 from flask import render_template, flash, redirect, url_for, request, jsonify, json, session
 from . import db
 from .forms import LoginForm, RegistrationForm, ResetForm
-from .models import User, Post
+from .models import User, Post, Feedback
 from flask_login import current_user, login_user, logout_user, login_required, login_manager
 from werkzeug.urls import url_parse
 import random, string, html, re, uuid
@@ -18,6 +18,10 @@ def home():
 
     :return: Display a set of items
     '''
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    
     form=LoginForm()
     return render_template('index.html', user=current_user, form=form)
     
@@ -32,7 +36,10 @@ def index():
     :return: Display a set of items
     '''
     form=LoginForm()
-    return render_template('index.html', user=current_user, form=form)
+    
+    admin = 1 if current_user.email == 'admin' else None
+    
+    return render_template('index.html', user=current_user, form=form, admin=admin)
 
 # -------------------------------------------------------------------------------------------------------------------------
 # ----- View Individual item
@@ -43,10 +50,23 @@ def item(id):
 
     :return: Display item detail
     '''
+    admin = 1 if current_user.email == 'admin' else None
+    
     # get JSON data from themoviedb
-    data = getJSON("https://api.themoviedb.org/3/movie/"+id+"?api_key=09644c0c348cd25bd283e666341d2720&language=en-US");
-    omdb = getJSON("http://www.omdbapi.com/?apikey=647812cf&i="+data['imdb_id']);
-    reviews = getJSON("https://api.themoviedb.org/3/movie/"+id+"/reviews?api_key=09644c0c348cd25bd283e666341d2720&language=en-US&page=1");
+    try:
+        data = getJSON("https://api.themoviedb.org/3/movie/"+id+"?api_key=09644c0c348cd25bd283e666341d2720&language=en-US");
+    except Exception as e:
+        return redirect(url_for('index'))
+        
+    try:
+        omdb = getJSON("http://www.omdbapi.com/?apikey=647812cf&i="+data['imdb_id']);
+    except Exception as e:
+        return redirect(url_for('index'))
+    
+    try:
+        reviews = getJSON("https://api.themoviedb.org/3/movie/"+id+"/reviews?api_key=09644c0c348cd25bd283e666341d2720&language=en-US&page=1");
+    except Exception as e:
+        return redirect(url_for('index'))
     
     # Rating color
     if data['vote_average'] == 'N/A':
@@ -66,7 +86,7 @@ def item(id):
     dbReviews = Post.query.filter_by(item_id=data['id']).all()
     
     form=LoginForm()
-    return render_template('item.html', user=current_user, form=form, data=omdb, data2=data, reviews=reviews, dbReviews=dbReviews)
+    return render_template('item.html', user=current_user, admin=admin, form=form, data=omdb, data2=data, reviews=reviews, dbReviews=dbReviews)
     
 # -------------------------------------------------------------------------------------------------------------------------
 # Get JSON Function
@@ -86,7 +106,6 @@ def getJSON(url):
 def submitReview():
     data = request.form
     if data['comment']:
-        print(data)
         newPost = Post(user_id=current_user.id, 
                       username=current_user.username, 
                        item_id=data['id'], 
@@ -101,6 +120,57 @@ def submitReview():
             
     return redirect('/item/'+data['id']);
     
+# -------------------------------------------------------------------------------------------------------------------------
+# ----- Submit User feedback to email
+# -------------------------------------------------------------------------------------------------------------------------
+@app.route('/send_fb', methods=['POST'])
+def send_fb():
+    if request.method == 'POST':
+        # check if the post request has the fb_email part
+        if request.form['fb_email'] == '':
+            return 'Error: Need an email'
+
+        # check if the post request has the fb_comment part
+        if request.form['fb_comment'] == '':
+            return 'Error: Comment is empty'
+            
+        new_fb = Feedback(email=request.form['fb_email'], 
+                      comment=request.form['fb_comment'])
+        try:
+            db.session.add(new_fb)
+            db.session.commit()
+        except Exception as e:
+            print("FAILED entry: "+str(e));
+            
+        return "Thank you for your feedback!"
+        
+    return "Have a good day!"
+    
+# -------------------------------------------------------------------------------------------------------------------------
+@app.route('/feedback')
+@login_required
+def feedback():
+    '''Main home page (Logged in)
+
+    *login required*
+
+    :return: Display a set of items
+    '''
+    # get user feedback from database
+    query = Feedback.query.order_by(Feedback.id.desc()).all()
+    
+    feedbacks = []
+    
+    for item in query:
+        temp = {
+            'email': item.email,
+            'comment': item.comment
+        }
+        feedbacks.append(temp)
+    
+    return json.dumps(feedbacks)
+
+
 # -------------------------------------------------------------------------------------------------------------------------
 # ----- User login & Registation / Logout
 # -------------------------------------------------------------------------------------------------------------------------
@@ -212,23 +282,39 @@ def showdb():
     if current_user.email == "admin":
         Users = User.query.all()
         Posts = Post.query.order_by(Post.id.desc()).all()
+        Feedbacks = Feedback.query.order_by(Feedback.id.desc()).all()
         
         for post in Posts:
             post.body = post.body[0:100]
 
-        return render_template('result.html', Users=Users, Posts=Posts)
+        return render_template('result.html', Users=Users, Posts=Posts, Feedbacks=Feedbacks)
 
     return redirect(url_for('index'))
 # -------------------------------------------------------------------------------------------------------------------------
-@app.route('/delshareid/<int:id>', methods=['GET'])
+@app.route('/delfb/<int:id>', methods=['GET'])
 @login_required
-def delShareId(id):
+def delfb(id):
     if current_user.email == "admin":
-        shared = AllPosts.query.filter_by(id=id).first()
-        if shared is None:
+        feedback = Feedback.query.filter_by(id=id).first()
+        if feedback is None:
             return "id not found"
         else:
-            db.session.delete(shared)
+            db.session.delete(feedback)
+            db.session.commit()
+
+        return redirect(url_for('showdb'))
+
+    return redirect(url_for('index'))
+# -------------------------------------------------------------------------------------------------------------------------
+@app.route('/delr/<int:id>', methods=['GET'])
+@login_required
+def delr(id):
+    if current_user.email == "admin":
+        post = Post.query.filter_by(id=id).first()
+        if post is None:
+            return "id not found"
+        else:
+            db.session.delete(post)
             db.session.commit()
 
         return redirect(url_for('showdb'))
