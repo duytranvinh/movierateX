@@ -293,7 +293,7 @@ def showdb():
         Feedbacks = Feedback.query.order_by(Feedback.id.desc()).all()
         
         for post in Posts:
-            post.body = post.body[0:100]
+            post.content = post.content[0:100]
 
         return render_template('result.html', Users=Users, Posts=Posts, Feedbacks=Feedbacks)
 
