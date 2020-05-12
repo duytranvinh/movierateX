@@ -67,6 +67,11 @@ def item(id):
         reviews = getJSON("https://api.themoviedb.org/3/movie/"+id+"/reviews?api_key=09644c0c348cd25bd283e666341d2720&language=en-US&page=1");
     except Exception as e:
         return redirect(url_for('index'))
+        
+    try:
+        videos = getJSON("https://api.themoviedb.org/3/movie/"+id+"/videos?api_key=09644c0c348cd25bd283e666341d2720&language=en-US");
+    except Exception as e:
+        return redirect(url_for('index'))
     
     # Rating color
     if data['vote_average'] == 'N/A':
@@ -82,11 +87,12 @@ def item(id):
     # if title is empty use name instead
     data['title'] = data['name'] if data['title'] is None else data['title'];
     
+    
     # get user review from database
     dbReviews = Post.query.filter_by(item_id=data['id']).all()
     
     form=LoginForm()
-    return render_template('item.html', user=current_user, admin=admin, form=form, data=omdb, data2=data, reviews=reviews, dbReviews=dbReviews)
+    return render_template('item.html', user=current_user, admin=admin, form=form, data=omdb, data2=data, videos=videos, reviews=reviews, dbReviews=dbReviews)
     
 # -------------------------------------------------------------------------------------------------------------------------
 # Get JSON Function
@@ -134,7 +140,8 @@ def send_fb():
         if request.form['fb_comment'] == '':
             return 'Error: Comment is empty'
             
-        new_fb = Feedback(email=request.form['fb_email'], 
+        new_fb = Feedback(email=request.form['fb_email'],
+                      option=request.form['fb_option'],
                       comment=request.form['fb_comment'])
         try:
             db.session.add(new_fb)
@@ -164,6 +171,7 @@ def feedback():
     for item in query:
         temp = {
             'email': item.email,
+            'option': item.option,
             'comment': item.comment
         }
         feedbacks.append(temp)
@@ -242,7 +250,7 @@ def login():
         form = RegistrationForm()
         if form.validate_on_submit():
             user = User(email=form.email.data.lower(
-            ), firstname=form.firstname.data, lastname=form.lastname.data)
+            ), firstname=form.firstname.data, lastname=form.lastname.data, username=form.username.data)
             user.set_password(form.password.data)
             try:
                 db.session.add(user)
