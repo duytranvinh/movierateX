@@ -88,7 +88,7 @@
             <div class="input-field">
                 <input type="search" class="search" required>
                 <label class="label-icon" for="search"><i class="material-icons left">search</i></label>
-                <i class="material-icons">close</i>
+                <i class="material-icons">check</i>
             </div>
         </form>
       </div>
@@ -196,6 +196,17 @@
       </div>
       <div class="row">
         <div class="input-field col s12">
+        <select name="fb_option">
+          <option value="" disabled selected>option</option>
+          <option value="Unfound Movie">Unfound Movie</option>
+          <option value="Recommendation">Recommendation</option>
+          <option value="Other">Other</option>
+        </select>
+        <label>Choose an</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
           <textarea id="fb_comment" class="materialize-textarea" name="fb_comment" placeholder="Send us a feedback to improve our website!"></textarea>
           <label for="fb_comment">Got recommendation?</label>
         </div>
@@ -253,6 +264,11 @@
           {% endfor %}
         {% endif%}
         {% endwith %}
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('select');
+        var instances = M.FormSelect.init(elems);
     });
     
     document.addEventListener('DOMContentLoaded', function() {
@@ -383,7 +399,7 @@
             $('#vfb_content').html('');
             var t = ''
                 $.each(data, function( key, value ) {
-                    t = '<li><div class="collapsible-header"><i class="material-icons">feedback</i>'+value.email+'</div><div class="collapsible-body"><span>L'+value.comment+'</span></div></li>';
+                    t = '<li><div class="collapsible-header"><i class="material-icons">feedback</i>'+value.email+' - '+value.option+'</div><div class="collapsible-body"><span>'+value.comment+'</span></div></li>';
                     $('#vfb_content').append(t)
                 });
             });
