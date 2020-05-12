@@ -53,7 +53,8 @@ class Feedback(db.Model):
     """
     __tablename__ = "Feedback"
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(128), index=True, unique=True)
+    email = db.Column(db.String(128), index=True)
+    option = db.Column(db.String(128))
     comment = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
