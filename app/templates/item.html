@@ -1,169 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <style>
-    #backdrop {
-      height: 60vh;
-      background-image: url('https://image.tmdb.org/t/p/original{{ data2.backdrop_path }}');
-      background-position: center center;
-      background-repeat: no-repeat;
-      background-size: cover;
-      z-index: -2;
-      top: 100px;
-      left: 0;
-      right: 0;
-      margin: 0;
-    }
-    #backdrop-cover {
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-    }
-    .description {
-    }
-</style>
-{% if data.Title %}
-  <section id="itemPage">
-      <div class="row" id="showItems">
-        <div class="col s6 m3 l2">
-          <div class="card">
-            <div class="card-image">
-              <img class="materialboxed" width="300" src="https://image.tmdb.org/t/p/w500{{ data2.poster_path }}" class="animated fadeIn">
-              <span class="card-title"></span>
-              <a class="btn-floating halfway-fab waves-effect waves-light {{ data2.ratingColor }} center">{{ data2.vote_average }}</a>
-            </div>
-            <div class="card-content">
-                <p><b>imdb Votes:</b> {{ data.imdbVotes }}</p>
-                <p>{% if data.Ratings and data.Ratings[1] %} <b>Rotten Tomatoes:</b> {{ data.Ratings[1].Value }}{% endif %}</p>
-                <p>{% if data.Ratings and data.Ratings[2] %} <b>Metacritic:</b> {{ data.Ratings[2].Value }}{% endif %}</p>
-            </div>
-          </div>
-        </div>
-        <div id="backdrop">
-        </div>
-        <div class="col s12 m10 description">
-            <p><h3>{{ data.Title }} ({{ data.Year }})</h3></p>
-            <p>{{ data.Rated }} <b>|</b> {{ data.Runtime }} <b>|</b> {{ data.Genre }} <b>|</b> {{ data.Released }}</p>
-            <!--<p><i>{{ data.Production }}</i></p>
-            <p><b>Box Office:</b> {{ data.BoxOffice }}</p>
-            <p><b>Awards:</b> {{ data.Awards }}</p>-->
-            <h4>Overview</h4>
-            <p>{{ data.Plot }}</p>
-            <p><b>Director:</b> {{ data.Director }}</p>
-            <p><b>Writers:</b> {{ data.Writer }}</p>
-            <p><b>Stars:</b> {{ data.Actors }}</p>
-        </div>
-        <!-- user review -->
-            <div class="col s12 m2">.
-            </div>
-            <div class="col s12 m10">
-                <h4>User Reviews</h4>
-                
-                {% if user.is_authenticated  %}
-                <!-- write review -->
-                <p><a class="btn-small waves-effect waves-light modal-trigger" href="#modal2">Write A review</a></p>
-                {% endif %}
-                
-                <ul class="collapsible popout" id="userReviews">
-                {% for review in dbReviews %}
-                    <li>
-                      <div class="collapsible-header"><i class="material-icons">comment</i>{{ review.username }}</div>
-                      <div class="collapsible-body"><span>{{ review.content }}</span></div>
-                    </li>
-                {% endfor %}
-                {% for review in reviews.results %}
-                    <li>
-                      <div class="collapsible-header"><i class="material-icons">comment</i>{{ review.author }}</div>
-                      <div class="collapsible-body"><span>{{ review.content }}</span></div>
-                    </li>
-                {% endfor %}
-                </ul>
-            </div>
-      </div>
-  </section>
-  
-  <!-- Modal Structure -->
-  <div id="modal2" class="modal modal-fixed-footer">
-    <form id="submitReview" action="/submitReview" method="POST">
-    <input type="hidden" name="id" value="{{ data2.id }}">
-    <div class="modal-content">
-      <h4 class="center">Write a review</h4>
-      <div class="row center">
-        <div class="range-field col s3">
-          Overall Rating 1 - 10
-        </div>
-        <div class="range-field col s9">
-          <input type="range" id="rating" name="rating" min="1" max="10" value="1" />
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s12">
-          <input id="title" name="title" type="text">
-          <label for="title">Title</label>
-          <span id="helper-text" class="helper-text red-text" data-error="wrong" data-success="right"></span>
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s12">
-          <textarea id="comment" class="materialize-textarea" name="comment" placeholder="What did you like or dislike?"></textarea>
-          <label for="comment">Write your review</label>
-          <span id="helper-text" class="helper-text red-text" data-error="wrong" data-success="right"></span>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <input type="submit" value="Submit" class="waves-effect waves-white btn-flat cyan lighten-3 black-text">
-      <a href="#!" class="modal-close waves-effect waves-red btn-flat red white-text">Close</a>
-    </div>
-    </form>
-  </div>
-  
-  <!-- custom scripts -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var elems = document.querySelectorAll('.materialboxed');
-      var instances = M.Materialbox.init(elems);
-    });
-    
-    /*$("#submitReview").submit(function(e) {
-        if ($("#comment").val() == "") {
-            $("#helper-text").text('This field cannot be empty');
-            return false;
+    /*@media only screen and (min-width: 601px) {
+        .card-image img {
+          max-height: 320px;
+          overflow: hidden;
         }
-        
-        e.preventDefault();
-        
-        var form = $(this);
-        var url = form.attr('action');
-        
-        $.ajax({
-               type: "POST",
-               url: url,
-               data: form.serialize(),
-               success: function(data) {
-                   alert(data);
-                   $("#helper-text").text('');
-                   $("#comment").val('');
-                   $("#rating").val(1);
-               }
-             });
-        
-        
-    });*/
-    
-    var rating  = document.querySelectorAll("#rating");
-    M.Range.init(rating);
-  </script>
-{% else %}
-<div class="container">
-    <div class="row">
-      <div class="col s12"></div>
+    }*/
+    @media only screen and (min-width: 600px) and (max-width: 1500px) {
+        .card-image img {
+          max-height: 270px;
+        }
+    }
+    @media only screen and (min-width: 1500px) {
+        .card-image img {
+          height: 350px;
+        }
+    }
+  </style>
+
+  
+  <!-- HOME/LANDING PAGE -->
+  <section id="landingPage" class="container">
+    <div class="row" id="showItems">
     </div>
     <div class="row">
-      <div class="col s10"><h3><i class="medium material-icons">warning</i> An error has occured</h3><br>
-      <h4><a href="javascript:history.back()"><i class="material-icons">arrow_back</i>  go back.</a></h4></div>
+        <div class="col s12 m12 center">
+            <a id="nextDataBtn" class="waves-effect waves-light btn cyan center">Load More</a>
+        </div>
     </div>
-</div>
-{% endif %}
+  </section>
 {% endblock %}
