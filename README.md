@@ -66,9 +66,11 @@ This repo is built with Heroku package and is ready for deployment. Please see H
 * [MaterializeCSS](https://materializecss.com/) - A modern responsive front-end framework based on Material Design.
 
 
+<!-- Remove this tag to show names below
 ## Authors, *Initial work*
 
 * **Tai Huynh** - *Project Manager*
 * **Daniel Saneel** - *UI/UX Engineer*
 * **Tatsuya Hayashi** - *Front-End Engineer*
 * **Nathaniel Wallace** - *Devops/Infrastucture Engineer*
+-->
